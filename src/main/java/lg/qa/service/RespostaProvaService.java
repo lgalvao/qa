@@ -6,7 +6,6 @@ import lg.qa.dto.ResponderProvaRequest;
 import lg.qa.dto.RespostaProvaResponse;
 import lg.qa.model.*;
 import lg.qa.repository.AlternativaRepository;
-import lg.qa.repository.PerguntaRepository;
 import lg.qa.repository.ProvaRepository;
 import lg.qa.repository.RespostaDadaRepository;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RespostaProvaService {
     private final ProvaRepository provaRepository;
-    private final PerguntaRepository perguntaRepository;
     private final AlternativaRepository alternativaRepository;
     private final RespostaDadaRepository respostaDadaRepository;
 
@@ -84,6 +82,7 @@ public class RespostaProvaService {
         if (prova.getPerguntas() != null) {
             for (Pergunta pergunta : prova.getPerguntas()) {
                 if (pergunta.getAlternativas() != null) {
+                    //noinspection ResultOfMethodCallIgnored
                     pergunta.getAlternativas().size(); // força o carregamento
                 }
             }

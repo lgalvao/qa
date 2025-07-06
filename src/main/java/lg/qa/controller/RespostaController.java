@@ -3,7 +3,6 @@ package lg.qa.controller;
 import jakarta.validation.Valid;
 import lg.qa.dto.NovaRespostaDTO;
 import lg.qa.model.Alternativa;
-import lg.qa.model.Pergunta;
 import lg.qa.model.Resposta;
 import lg.qa.repository.PerguntaRepository;
 import lg.qa.repository.RespostaRepository;
@@ -39,8 +38,9 @@ public class RespostaController {
 
     @GetMapping
     public List<RespostaResumoDTO> listarRespostas(@PathVariable Long perguntaId) {
-        Pergunta pergunta = perguntaRepository.findById(perguntaId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pergunta não encontrada"));
+        if (!perguntaRepository.existsById(perguntaId)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Pergunta não encontrada");
+        }
         return respostaRepository.findAll().stream()
                 .filter(r -> r.getPergunta() != null && r.getPergunta().getId().equals(perguntaId))
                 .map(RespostaResumoDTO::from)

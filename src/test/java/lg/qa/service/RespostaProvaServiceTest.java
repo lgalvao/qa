@@ -4,7 +4,6 @@ import lg.qa.dto.ResponderProvaRequest;
 import lg.qa.dto.RespostaProvaResponse;
 import lg.qa.model.*;
 import lg.qa.repository.AlternativaRepository;
-import lg.qa.repository.PerguntaRepository;
 import lg.qa.repository.ProvaRepository;
 import lg.qa.repository.RespostaDadaRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,9 +24,6 @@ import static org.mockito.Mockito.when;
 class RespostaProvaServiceTest {
     @Mock
     private ProvaRepository provaRepository;
-
-    @Mock
-    private PerguntaRepository perguntaRepository;
 
     @Mock
     private AlternativaRepository alternativaRepository;
@@ -50,11 +45,13 @@ class RespostaProvaServiceTest {
                 .id(1L)
                 .nome("Matemática")
                 .build();
+
         Pergunta pergunta = Pergunta.builder()
                 .id(10L)
                 .titulo("Quanto é 2+2?")
                 .alternativas(new java.util.ArrayList<>())
                 .build();
+
         Alternativa alternativa = Alternativa.builder()
                 .id(100L)
                 .texto("4")
@@ -62,6 +59,7 @@ class RespostaProvaServiceTest {
                 .pergunta(pergunta)
                 .build();
         pergunta.setAlternativas(List.of(alternativa));
+
         Prova prova = Prova.builder()
                 .id(1L)
                 .categoria(categoria)
@@ -72,6 +70,7 @@ class RespostaProvaServiceTest {
                 .erros(0)
                 .dataCriacao(java.time.LocalDateTime.now())
                 .build();
+
         when(provaRepository.findById(1L)).thenReturn(Optional.of(prova));
         when(alternativaRepository.findById(100L)).thenReturn(Optional.of(alternativa));
         when(respostaDadaRepository.save(any(RespostaDada.class))).thenAnswer(inv -> {
@@ -81,12 +80,15 @@ class RespostaProvaServiceTest {
         });
 
         when(provaRepository.save(any(Prova.class))).thenAnswer(inv -> inv.getArgument(0));
+
         ResponderProvaRequest.RespostaDTO respDTO = new ResponderProvaRequest.RespostaDTO();
         respDTO.setPerguntaId(10L);
         respDTO.setAlternativaId(100L);
+
         ResponderProvaRequest req = new ResponderProvaRequest();
         req.setProvaId(1L);
         req.setRespostas(List.of(respDTO));
+
         RespostaProvaResponse resp = respostaProvaService.responderProva(req);
         assertThat(resp).isNotNull();
         assertThat(resp.getAcertos()).isEqualTo(1);
@@ -170,24 +172,24 @@ class RespostaProvaServiceTest {
         prova.setErros(0);
         prova.setDataCriacao(java.time.LocalDateTime.now());
         prova.setRespostasDadas(new java.util.ArrayList<>());
-  
+
         Categoria cat = new Categoria();
         cat.setNome("Matemática");
         prova.setCategoria(cat);
-  
+
         Pergunta pergunta = new Pergunta();
         pergunta.setId(10L);
         pergunta.setTitulo("Quanto é 2+2?");
-  
+
         Alternativa alternativa = new Alternativa();
         alternativa.setId(100L);
         alternativa.setTexto("4");
         alternativa.setCorreta(true);
         alternativa.setPergunta(pergunta);
-  
+
         pergunta.setAlternativas(List.of(alternativa));
         prova.setPerguntas(List.of(pergunta));
-  
+
         RespostaDada respostaDada = RespostaDada.builder()
                 .prova(prova)
                 .pergunta(pergunta)
@@ -195,10 +197,10 @@ class RespostaProvaServiceTest {
                 .correta(true)
                 .build();
         prova.setRespostasDadas(List.of(respostaDada));
-  
+
         when(provaRepository.findById(1L)).thenReturn(Optional.of(prova));
         when(respostaDadaRepository.findByProvaId(1L)).thenReturn(List.of(respostaDada));
-  
+
         RespostaProvaResponse resp = respostaProvaService.obterResultado(1L);
         assertThat(resp).isNotNull();
         assertThat(resp.getAcertos()).isEqualTo(1);
@@ -208,10 +210,10 @@ class RespostaProvaServiceTest {
     void deveLancarExcecaoSeProvaNaoRespondida() {
         Prova prova = new Prova();
         prova.setId(1L);
-  
+
         when(provaRepository.findById(1L)).thenReturn(Optional.of(prova));
         when(respostaDadaRepository.findByProvaId(1L)).thenReturn(Collections.emptyList());
-  
+
         assertThatThrownBy(() -> respostaProvaService.obterResultado(1L))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("ainda não foi respondida");
