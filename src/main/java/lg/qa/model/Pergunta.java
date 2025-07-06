@@ -23,6 +23,7 @@ public class Pergunta {
     private String descricao;
 
     @OneToMany(mappedBy = "pergunta", cascade = CascadeType.ALL, orphanRemoval = true, targetEntity = Alternativa.class)
+    @Builder.Default
     private List<Alternativa> alternativas = new ArrayList<>();
 
     @ManyToOne
